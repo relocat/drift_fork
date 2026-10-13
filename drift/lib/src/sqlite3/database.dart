@@ -43,8 +43,8 @@ abstract class Sqlite3Delegate<DB extends CommonDatabase>
   /// existing behaviour.
   ///
   /// Set to `false` on platforms that forbid `mprotect(PROT_EXEC)` (e.g.
-  /// GrapheneOS, or stock Android 16 with the per-app "Restrict dynamic
-  /// code loading via memory" toggle on). When `false`, queries that
+  /// GrapheneOS with its per-app "Restrict dynamic code loading via memory"
+  /// setting turned on). When `false`, queries that
   /// reference those helpers will fail with `no such function`.
   final bool enableNativeFunctions;
 

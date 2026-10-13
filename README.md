@@ -4,10 +4,13 @@
 > ([documentation](https://drift.simonbinder.eu/)). It is based on the upstream release tag
 > `drift-2.32.1` (`ba0cd647b439031808340eceb1ea4fd28b96dcb2`).
 >
-> **Why it exists.** The [Relocat](https://relocat.org) app must start on GrapheneOS and on Android 16
-> with the per-app "Restrict dynamic code loading via memory" setting enabled. When opening a
-> database, drift registers its custom SQL functions through `sqlite3_create_function_v2`, which
-> allocates executable trampolines that these platforms deny, so the app cannot start.
+> **Why it exists.** The [Relocat](https://relocat.org) app targets GrapheneOS (which is based on
+> Android 16) with its per-app "Restrict dynamic code loading via memory" exploit-protection setting
+> enabled. When opening a database, drift registers its custom SQL functions through
+> `package:sqlite3`, which wraps each Dart function in a Dart FFI callback. These callbacks need
+> executable trampolines, and that setting blocks the executable-memory allocation. With
+> `enableNativeFunctions: false`, drift skips this registration and avoids that allocation.
+> This fork does not change anything else in the Dart runtime or in `package:sqlite3`.
 >
 > **What this fork changes** (only the `drift` package; every other package is upstream as-is):
 > - Adds `enableNativeFunctions` (default `true`) to `NativeDatabase()`, `NativeDatabase.memory`,
