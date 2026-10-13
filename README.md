@@ -1,12 +1,36 @@
-> **Relocat fork.** This is a fork of `simolus3/drift` maintained by Relocat.
-> The only deviation from upstream is the addition of `enableNativeFunctions`
-> (default `true`) on the public `NativeDatabase` constructors and on
-> `Sqlite3Delegate`. This unblocks app launch on GrapheneOS / Android-16
-> with "Restrict dynamic code loading via memory" enabled, by allowing
-> consumers that do not use Drift's built-in SQL helpers to skip the
-> `sqlite3_create_function_v2` calls that allocate PROT_EXEC trampolines.
+> [!NOTE]
+> **This is Relocat's fork of [drift](https://github.com/simolus3/drift)**, the reactive persistence
+> library for Dart and Flutter by Simon Binder and contributors
+> ([documentation](https://drift.simonbinder.eu/)). It is based on the upstream release tag
+> `drift-2.32.1` (`ba0cd647b439031808340eceb1ea4fd28b96dcb2`).
 >
-> **Based on:** upstream release tag `drift-2.32.1`.
+> **Why it exists.** The [Relocat](https://relocat.org) app must start on GrapheneOS and on Android 16
+> with the per-app "Restrict dynamic code loading via memory" setting enabled. When opening a
+> database, drift registers its custom SQL functions through `sqlite3_create_function_v2`, which
+> allocates executable trampolines that these platforms deny, so the app cannot start.
+>
+> **What this fork changes** (only the `drift` package; every other package is upstream as-is):
+> - Adds `enableNativeFunctions` (default `true`) to `NativeDatabase()`, `NativeDatabase.memory`,
+>   `NativeDatabase.opened`, `NativeDatabase.createInBackground`,
+>   `NativeDatabase.createBackgroundConnection` and `Sqlite3Delegate`, including background and
+>   read-pool isolates. With `false`, drift skips registering its helper functions
+>   (`moor_contains`, `current_time_millis`, `regexp`, …); queries that use them fail with
+>   `no such function`.
+> - Adds tests in `drift/test/native_database/enable_native_functions_test.dart`.
+> - Behaviour is unchanged unless you pass `enableNativeFunctions: false`.
+>
+> **Licence.** MIT, unchanged from upstream (see [LICENSE](LICENSE)). Our changes are released under
+> the same licence.
+>
+> Relocat is **not affiliated with or endorsed by** the drift maintainers.
+>
+> **Use upstream drift unless you need this patch.** This fork is not published to pub.dev; depend on
+> it by git URL pinned to a commit.
+>
+> **Issues.** Problems with `enableNativeFunctions` belong
+> [here](https://github.com/relocat/drift_fork/issues). Everything else belongs
+> [upstream](https://github.com/simolus3/drift/issues). Report security issues privately to
+> office@relocat.org.
 
 ---
 
