@@ -38,14 +38,15 @@ abstract class Sqlite3Delegate<DB extends CommonDatabase>
   /// connections to the same database.
   final bool closeUnderlyingWhenClosed;
 
-  /// Whether to register drift's built-in SQL helpers (`pow`, `regexp`,
+  /// Whether to register drift's Dart-implemented SQL helpers (`regexp`,
   /// `moor_contains`, `current_time_millis`, …). Default true preserves
   /// existing behaviour.
   ///
   /// Set to `false` on platforms that forbid `mprotect(PROT_EXEC)` (e.g.
-  /// GrapheneOS with its per-app "Restrict dynamic code loading via memory"
-  /// setting turned on). When `false`, queries that
-  /// reference those helpers will fail with `no such function`.
+  /// GrapheneOS with its per-app "Dynamic code loading via memory" setting
+  /// set to Restricted). When `false`, queries that reference those helpers
+  /// (for example `regexp`) will fail with `no such function`. SQLite's own
+  /// built-in functions are unaffected.
   final bool enableNativeFunctions;
 
   final PreparedStatementsCache _preparedStmtsCache = PreparedStatementsCache();
