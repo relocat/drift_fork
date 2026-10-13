@@ -38,6 +38,16 @@ abstract class Sqlite3Delegate<DB extends CommonDatabase>
   /// connections to the same database.
   final bool closeUnderlyingWhenClosed;
 
+  /// Whether to register drift's built-in SQL helpers (`pow`, `regexp`,
+  /// `moor_contains`, `current_time_millis`, …). Default true preserves
+  /// existing behaviour.
+  ///
+  /// Set to `false` on platforms that forbid `mprotect(PROT_EXEC)` (e.g.
+  /// GrapheneOS, or stock Android 16 with the per-app "Restrict dynamic
+  /// code loading via memory" toggle on). When `false`, queries that
+  /// reference those helpers will fail with `no such function`.
+  final bool enableNativeFunctions;
+
   final PreparedStatementsCache _preparedStmtsCache = PreparedStatementsCache();
 
   /// A delegate that will call [openDatabase] to open the database.
@@ -45,6 +55,7 @@ abstract class Sqlite3Delegate<DB extends CommonDatabase>
     this._setup, {
     this.enableMigrations = true,
     required this.cachePreparedStatements,
+    this.enableNativeFunctions = true,
   }) : closeUnderlyingWhenClosed = true;
 
   /// A delegate using an underlying sqlite3 database object that has already
@@ -55,6 +66,7 @@ abstract class Sqlite3Delegate<DB extends CommonDatabase>
     this.closeUnderlyingWhenClosed, {
     this.enableMigrations = true,
     required this.cachePreparedStatements,
+    this.enableNativeFunctions = true,
   }) {
     _initializeDatabase();
   }
@@ -101,7 +113,9 @@ abstract class Sqlite3Delegate<DB extends CommonDatabase>
   void _initializeDatabase() {
     assert(!_hasInitializedDatabase);
 
-    database.useNativeFunctions();
+    if (enableNativeFunctions) {
+      database.useNativeFunctions();
+    }
     _setup?.call(database);
     versionDelegate = enableMigrations
         ? _SqliteVersionDelegate(database)

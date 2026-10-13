@@ -1,3 +1,15 @@
+> **Relocat fork.** This is a fork of `simolus3/drift` maintained by Relocat.
+> The only deviation from upstream is the addition of `enableNativeFunctions`
+> (default `true`) on the public `NativeDatabase` constructors and on
+> `Sqlite3Delegate`. This unblocks app launch on GrapheneOS / Android-16
+> with "Restrict dynamic code loading via memory" enabled, by allowing
+> consumers that do not use Drift's built-in SQL helpers to skip the
+> `sqlite3_create_function_v2` calls that allocate PROT_EXEC trampolines.
+>
+> **Based on:** upstream release tag `drift-2.32.1`.
+
+---
+
 # Drift
 
 [![Build Status](https://github.com/simolus3/drift/actions/workflows/main.yml/badge.svg)](https://github.com/simolus3/drift/actions/workflows/main.yml/badge.svg)

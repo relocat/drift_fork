@@ -101,6 +101,7 @@ class NativeDatabase extends DelegatedDatabase {
     SqliteResolver sqlite3 = _NativeDelegate._defaultResolver,
     bool enableMigrations = true,
     bool cachePreparedStatements = _cacheStatementsByDefault,
+    bool enableNativeFunctions = true,
   }) {
     return NativeDatabase._(
         _NativeDelegate(
@@ -109,6 +110,7 @@ class NativeDatabase extends DelegatedDatabase {
           enableMigrations,
           cachePreparedStatements,
           sqlite3,
+          enableNativeFunctions: enableNativeFunctions,
         ),
         logStatements);
   }
@@ -162,6 +164,7 @@ class NativeDatabase extends DelegatedDatabase {
     bool enableMigrations = true,
     IsolateSetup? isolateSetup,
     int readPool = _defaultReadPoolSize,
+    bool enableNativeFunctions = true,
   }) {
     return createBackgroundConnection(
       file,
@@ -172,6 +175,7 @@ class NativeDatabase extends DelegatedDatabase {
       cachePreparedStatements: cachePreparedStatements,
       readPool: readPool,
       sqlite3: sqlite3,
+      enableNativeFunctions: enableNativeFunctions,
     );
   }
 
@@ -190,6 +194,7 @@ class NativeDatabase extends DelegatedDatabase {
     bool enableMigrations = true,
     bool cachePreparedStatements = _cacheStatementsByDefault,
     int readPool = _defaultReadPoolSize,
+    bool enableNativeFunctions = true,
   }) {
     RangeError.checkNotNegative(readPool);
 
@@ -205,6 +210,7 @@ class NativeDatabase extends DelegatedDatabase {
             enableLogs: logStatements,
             cachePreparedStatements: cachePreparedStatements,
             enableMigrations: enableMigrations,
+            enableNativeFunctions: enableNativeFunctions,
             setup: setup,
             isolateSetup: isolateSetup,
             sqlite3: sqlite3,
@@ -258,6 +264,7 @@ class NativeDatabase extends DelegatedDatabase {
     SqliteResolver sqlite3 = _NativeDelegate._defaultResolver,
     DatabaseSetup? setup,
     bool cachePreparedStatements = _cacheStatementsByDefault,
+    bool enableNativeFunctions = true,
   }) {
     return NativeDatabase._(
       _NativeDelegate(
@@ -269,6 +276,7 @@ class NativeDatabase extends DelegatedDatabase {
         true,
         cachePreparedStatements,
         sqlite3,
+        enableNativeFunctions: enableNativeFunctions,
       ),
       logStatements,
     );
@@ -293,6 +301,7 @@ class NativeDatabase extends DelegatedDatabase {
     bool closeUnderlyingOnClose = true,
     bool enableMigrations = true,
     bool cachePreparedStatements = _cacheStatementsByDefault,
+    bool enableNativeFunctions = true,
   }) {
     return NativeDatabase._(
         _NativeDelegate.opened(
@@ -302,6 +311,7 @@ class NativeDatabase extends DelegatedDatabase {
           cachePreparedStatements,
           enableMigrations,
           _NativeDelegate._defaultResolver,
+          enableNativeFunctions: enableNativeFunctions,
         ),
         logStatements);
   }
@@ -363,11 +373,13 @@ class _NativeDelegate extends Sqlite3Delegate<Database> {
   DatabaseTracker? _trackedBy;
 
   _NativeDelegate(this.file, DatabaseSetup? setup, bool enableMigrations,
-      bool cachePreparedStatements, this._sqlite3)
+      bool cachePreparedStatements, this._sqlite3,
+      {bool enableNativeFunctions = true})
       : super(
           setup,
           enableMigrations: enableMigrations,
           cachePreparedStatements: cachePreparedStatements,
+          enableNativeFunctions: enableNativeFunctions,
         );
 
   _NativeDelegate.opened(
@@ -376,8 +388,9 @@ class _NativeDelegate extends Sqlite3Delegate<Database> {
     super.closeUnderlyingWhenClosed,
     bool cachePreparedStatements,
     bool enableMigrations,
-    this._sqlite3,
-  )   : file = null,
+    this._sqlite3, {
+    super.enableNativeFunctions = true,
+  })  : file = null,
         super.opened(
           cachePreparedStatements: cachePreparedStatements,
           enableMigrations: enableMigrations,
@@ -462,6 +475,7 @@ class _NativeIsolateStartup {
   final bool enableLogs;
   final bool cachePreparedStatements;
   final bool enableMigrations;
+  final bool enableNativeFunctions;
   final DatabaseSetup? setup;
   final IsolateSetup? isolateSetup;
   final SqliteResolver sqlite3;
@@ -472,6 +486,7 @@ class _NativeIsolateStartup {
     required this.enableLogs,
     required this.cachePreparedStatements,
     required this.enableMigrations,
+    required this.enableNativeFunctions,
     required this.setup,
     required this.isolateSetup,
     required this.sqlite3,
@@ -487,6 +502,7 @@ class _NativeIsolateStartup {
           logStatements: startup.enableLogs,
           cachePreparedStatements: startup.cachePreparedStatements,
           enableMigrations: startup.enableMigrations,
+          enableNativeFunctions: startup.enableNativeFunctions,
           sqlite3: startup.sqlite3,
           setup: startup.setup,
         ));
